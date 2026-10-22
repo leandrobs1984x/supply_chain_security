@@ -30,11 +30,17 @@ jobs:
 
       - name: Generate SBOM
         run: |
-          syft docker.io/kodekloud/webapp-color:latest -o spdx-json > spdx.json
+          syft docker.io/kodekloud/webapp-color:latest \
+            -o spdx-json=spdx.json
+
+      - name: Validate SBOM
+        run: |
+          test -s spdx.json
+          jq -e '.spdxVersion and .packages' spdx.json
 
       - name: Upload SBOM Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: sbom-report
-          path: sbom.xml
+          name: spdx-sbom-report
+          path: spdx.json
           if-no-files-found: error
